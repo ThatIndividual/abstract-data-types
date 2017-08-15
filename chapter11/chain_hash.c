@@ -1,4 +1,4 @@
-#include "hash.h"
+#include "chain_hash.h"
 #include "vklist.h"
 
 #include <stdlib.h>

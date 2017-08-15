@@ -1,5 +1,5 @@
-#ifndef ALG_hash_h
-#define ALG_hash_h
+#ifndef ALG_chain_hash_h
+#define ALG_chain_hash_h
 
 #include "vklist.h"
 

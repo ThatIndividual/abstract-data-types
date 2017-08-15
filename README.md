@@ -1,3 +1,5 @@
-Source and Solutions for Introduction to Algorithms 3rd ed.
-==========================================================
+Introduction to Algorithms 3rd ed.
+==================================
+
+Source and solutions.
 
