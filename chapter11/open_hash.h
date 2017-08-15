@@ -12,6 +12,7 @@ struct open_hash
 struct hentry
 {
     const char* key;
+    int dist;
     int value;
 };
 

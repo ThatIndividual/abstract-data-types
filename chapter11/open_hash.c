@@ -4,14 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-static long hash_fun(const char*);
+static unsigned long hash_fun(const char*);
+static struct hentry* hentry_new(const char*, int);
 
 struct open_hash*
 open_hash_new(void)
 {
     struct open_hash* hash = malloc(sizeof(struct open_hash));
-    hash->size = 10;
-    hash->free = 10;
+    hash->size = 41;
+    hash->free = 41;
     hash->table = malloc(sizeof(struct hentry) * hash->size);
 
     return hash;
@@ -20,21 +21,35 @@ open_hash_new(void)
 void
 open_hash_insert(struct open_hash* hash, const char* key, int value)
 {
-    long hkey = hash_fun(key) % hash->size;
-    struct hentry* new_entry = malloc(sizeof(struct hentry));
-
-    new_entry->key = key;
-    new_entry->value = value;
-    while (hash->table[hkey] != NULL)
-        hkey = (hkey + 1) % hash->size;
-
-    hash->table[hkey] = new_entry;
+    unsigned long hkey = hash_fun(key) % hash->size;
+    struct hentry* new_entry = hentry_new(key, value);
+    for
+    (
+        int probes = 0;
+        ;
+        hkey = (hkey + 1) % hash->size,
+        ++new_entry->dist,
+        ++probes
+    )
+    {
+        if (hash->table[hkey] == NULL)
+        {
+            hash->table[hkey] = new_entry;
+            break;
+        }
+        else if(hash->table[hkey]->dist < probes)
+        {
+            struct hentry* temp = hash->table[hkey];
+            hash->table[hkey] = new_entry;
+            new_entry = temp;
+        }
+    }
 }
 
 int*
 open_hash_search(struct open_hash* hash, const char* key)
 {
-    long hkey = hash_fun(key) % hash->size;
+    unsigned long hkey = hash_fun(key) % hash->size;
     struct hentry* cell = hash->table[hkey];
     while (cell != NULL)
     {
@@ -57,21 +72,33 @@ open_hash_print(struct open_hash* hash)
     {
         cell = hash->table[i];
         if (cell == NULL)
-            printf("%i: nil\n", i);
+            printf("%2i: nil\n", i);
         else
-            printf("%i: %s => %i\n", i, cell->key, cell->value);
+            printf("%2i. d:%i, %s => %i\n",
+                   i, cell->dist, cell->key, cell->value);
     }
     putchar('\n');
 }
 
-static long
+static unsigned long
 hash_fun(const char* key)
 {
-    long hash = 0;
+    unsigned long hash = 0;
 
     for (const char* c = key; *c != '\0'; ++c)
         hash = hash * 33 + *c;
 
     return hash;
+}
+
+static struct hentry*
+hentry_new(const char* key, int value)
+{
+    struct hentry* entry = malloc(sizeof(struct hentry));
+    entry->dist = 0;
+    entry->key = key;
+    entry->value = value;
+
+    return entry;
 }
 
