@@ -59,7 +59,7 @@ main(void)
     for (int i = 0; i < 40; ++i)
     {
         printf("Inserting `%s`:\n", top40[i].name);
-        open_hash_insert(myhash, top40[i].name, top40[i].score);
+        open_hash_kvpins(myhash, top40[i].name, top40[i].score);
         open_hash_print(myhash);
     }
     open_hash_print(myhash);

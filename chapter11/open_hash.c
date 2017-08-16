@@ -6,42 +6,58 @@
 
 static unsigned long hash_fun(const char*);
 static struct hentry* hentry_new(const char*, int);
+static void open_hash_enlarge(struct open_hash*);
 
 struct open_hash*
 open_hash_new(void)
 {
     struct open_hash* hash = malloc(sizeof(struct open_hash));
-    hash->size = 41;
-    hash->free = 41;
-    hash->table = malloc(sizeof(struct hentry) * hash->size);
+    hash->size = 2;
+    hash->slack = 1;
+    hash->table = malloc(sizeof(struct hentry) * 3);
 
     return hash;
 }
 
 void
-open_hash_insert(struct open_hash* hash, const char* key, int value)
+open_hash_kvpins(struct open_hash* hash, const char* key, int value)
 {
-    unsigned long hkey = hash_fun(key) % hash->size;
-    struct hentry* new_entry = hentry_new(key, value);
+    struct hentry* entry = hentry_new(key, value);
+    open_hash_entins(hash, entry);
+}
+
+void
+open_hash_entins(struct open_hash* hash, struct hentry* entry)
+{
+    unsigned long hkey;
+    int probes;
+    entry->dist = 0;
     for
     (
-        int probes = 0;
+        hkey = hash_fun(entry->key) % hash->size,
+        probes = 0;
         ;
-        hkey = (hkey + 1) % hash->size,
-        ++new_entry->dist,
-        ++probes
+        ++hkey,
+        ++probes,
+        ++entry->dist
     )
     {
-        if (hash->table[hkey] == NULL)
+        if (probes > hash->slack)
         {
-            hash->table[hkey] = new_entry;
+            open_hash_enlarge(hash);
+            open_hash_entins(hash, entry);
             break;
         }
-        else if(hash->table[hkey]->dist < probes)
+        else if (hash->table[hkey] == NULL)
+        {
+            hash->table[hkey] = entry;
+            break;
+        }
+        else if (hash->table[hkey]->dist < probes)
         {
             struct hentry* temp = hash->table[hkey];
-            hash->table[hkey] = new_entry;
-            new_entry = temp;
+            hash->table[hkey] = entry;
+            entry = temp;
         }
     }
 }
@@ -57,36 +73,77 @@ open_hash_search(struct open_hash* hash, const char* key)
             return &cell->value;
         else
         {
-            hkey = (hkey + 1) % hash->size;
+            ++hkey;
             cell = hash->table[hkey];
         }
     }
     return NULL;
 }
 
+static void
+open_hash_enlarge(struct open_hash* hash)
+{
+    struct hentry** old_table = hash->table;
+    int old_size = hash->size;
+    int old_slack = hash->slack;
+    hash->size *= 2;
+    hash->slack += 1;
+    hash->table = malloc(sizeof(struct hentry) * (hash->size + hash->slack));
+
+    for (int i = 0; i < old_size + old_slack; ++i)
+    {
+        if (old_table[i] != NULL)
+            open_hash_entins(hash, old_table[i]);
+    }
+    free(old_table);
+}
+
 void
 open_hash_print(struct open_hash* hash)
 {
+    float items = 0.0;
     struct hentry* cell;
     for (int i = 0; i < hash->size; ++i)
     {
         cell = hash->table[i];
         if (cell == NULL)
+        {
             printf("%2i: nil\n", i);
+        }
         else
+        {
             printf("%2i. d:%i, %s => %i\n",
                    i, cell->dist, cell->key, cell->value);
+            ++items;
+        }
     }
-    putchar('\n');
+    printf("----------\n");
+    for (int i = hash->size; i < hash->size + hash->slack; ++i)
+    {
+        cell = hash->table[i];
+        if (cell == NULL)
+        {
+            printf("%2i: nil\n", i);
+        }
+        else
+        {
+            printf("%2i. d:%i, %s => %i\n",
+                   i, cell->dist, cell->key, cell->value);
+            ++items;
+        }
+    }
+
+    printf("Load: %f\n\n", items / (hash->size + hash->slack));
 }
 
 static unsigned long
 hash_fun(const char* key)
 {
-    unsigned long hash = 0;
+    unsigned long hash = 5381;
+    int c;
 
-    for (const char* c = key; *c != '\0'; ++c)
-        hash = hash * 33 + *c;
+    while ((c = *key++))
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     return hash;
 }
