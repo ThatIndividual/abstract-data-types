@@ -1,5 +1,5 @@
-#ifndef ALG_heap_h_
-#define ALG_heah_h_
+#ifndef ADT_heap_h_
+#define ADT_heah_h_
 
 #define T Heap_T
 

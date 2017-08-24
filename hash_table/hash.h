@@ -1,5 +1,5 @@
-#ifndef MD_hash_h_
-#define MD_hash_h_
+#ifndef ADT_hash_h_
+#define ADT_hash_h_
 
 /* An open adressing hash table. Collisions are solved with Robin Hood hashing.
    Catastrophic linear pileup is averted by setting a threshold on the number

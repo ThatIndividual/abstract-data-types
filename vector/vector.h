@@ -1,5 +1,5 @@
-#ifndef ALG_vector_h_
-#define ALG_vector_h_
+#ifndef ADT_vector_h_
+#define ADT_vector_h_
 
 #define T Vector_T
 

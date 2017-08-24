@@ -1,5 +1,5 @@
-#ifndef ALG_dblist_h
-#define ALG_dblist_h
+#ifndef ADT_dblist_h
+#define ADT_dblist_h
 
 struct dblist
 {

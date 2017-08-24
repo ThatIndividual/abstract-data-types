@@ -1,5 +1,5 @@
-#ifndef ALG_stack_h
-#define ALG_stack_h
+#ifndef ADT_stack_h
+#define ADT_stack_h
 
 #define T Stack_T
 
