@@ -9,7 +9,7 @@ struct T
     int count;
     struct elem
     {
-        void *x;
+        void *data;
         struct elem *link;
     } *head;
 };
@@ -31,17 +31,19 @@ int
 Stack_empty(T stk)
 {
     assert(stk);
+
     return stk->count == 0;
 }
 
 void
-Stack_push(T stk, void *x)
+Stack_push(T stk, void *data)
 {
     struct elem *t;
 
     assert(stk);
+
     t = malloc(sizeof(struct elem));
-    t->x = x;
+    t->data = data;
     t->link = stk->head;
     stk->head = t;
     ++stk->count;
@@ -50,17 +52,33 @@ Stack_push(T stk, void *x)
 void *
 Stack_pop(T stk)
 {
-    void *x;
+    void *data;
     struct elem *t;
 
     assert(stk);
     assert(stk->count > 0);
+
     t = stk->head;
     stk->head = t->link;
     --stk->count;
-    x = t->x;
+    data = t->data;
     free(t);
 
-    return x;
+    return data;
+}
+
+void
+Stack_free(T stk)
+{
+    struct elem *this_elem, *next_elem;
+
+    assert(stk);
+
+    for (this_elem = stk->head; this_elem; this_elem = next_elem)
+    {
+        next_elem = this_elem->link;
+        free(this_elem);
+    }
+    free(stk);
 }
 
