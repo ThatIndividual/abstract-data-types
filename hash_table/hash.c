@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+
 #include "hash.h"
 
 #define T Hash_T
@@ -86,7 +87,7 @@ Hash_get_row(T hash, const char *key)
         row = hash->table + hkey,
         probes = 0;
 
-        probes < hash->slack && row->key != NULL;
+        probes <= hash->slack && row->key != NULL;
 
         ++probes,
         ++row
