@@ -6,12 +6,12 @@
 
 struct T
 {
-    int count;
     struct elem
     {
         void *data;
         struct elem *link;
     } *head;
+    int count;
 };
 
 T
@@ -65,6 +65,15 @@ Stack_pop(T stk)
     free(t);
 
     return data;
+}
+
+void
+Stack_map(T stk, void map_fun(void *val))
+{
+    struct elem *elem;
+
+    for (elem = stk->head; elem; elem = elem->link)
+        map_fun(elem->data);
 }
 
 void
